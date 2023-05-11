@@ -32,10 +32,11 @@ class MyFrame(wx.Frame):
         self.root = self.tree.AddRoot('Marcked points')
         
         # Create a sizer for the panel and add the canvas and tree
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.canvas, 1, wx.EXPAND)
         sizer.Add(self.tree, 1, wx.EXPAND)
         self.panel.SetSizer(sizer)
+        sizer.SetSizeHints(self.panel)
         
         # Bind the mouse click event to the canvas
         self.canvas.mpl_connect('button_press_event', self.on_click)
