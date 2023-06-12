@@ -32,7 +32,7 @@ class MyFrame(wx.Frame):
         self.root = self.tree.AddRoot('Marcked points')
         
         # Create a sizer for the panel and add the canvas and tree
-        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.canvas, 1, wx.EXPAND)
         sizer.Add(self.tree, 1, wx.EXPAND)
         self.panel.SetSizer(sizer)
@@ -50,6 +50,11 @@ class MyFrame(wx.Frame):
             # Add the clicked point to the tree control
             point_str = '({:.2f}, {:.2f})'.format(x, y)
             self.tree.AppendItem(self.root, point_str)
+
+            # Add a bullet marker on the plot
+            ax = self.canvas.figure.axes[0]
+            ax.plot(x, y, marker='o', markersize=4, color='red')
+
             self.canvas.draw()
 
 if __name__ == '__main__':
