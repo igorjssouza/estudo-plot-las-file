@@ -52,22 +52,20 @@ class MyFrame(wx.Frame):
 
     def on_button_click(self, event):
         dialog = wx.FileDialog(self, "Select LAS File", wildcard="LAS files (*.las)|*.las",
-                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE)
+                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         if dialog.ShowModal() == wx.ID_OK:
-            filenames = dialog.GetPaths()
+            filename = dialog.GetPath()
 
-            combined_df = pd.DataFrame()
-            for filename in filenames:
-                # Read LAS file
-                las = lasio.read(filename)
-                df = las.df()
-                df.reset_index(inplace=True)
+            # Read LAS file
+            las = lasio.read(filename)
+            df = las.df()
+            df.reset_index(inplace=True)
+            # df.rename(columns={'DEPT': 'DEPTH'}, inplace=True)
 
-                # Concatenate the current DataFrame with the combined DataFrame
-                combined_df = pd.concat([combined_df, df], ignore_index=True)
+            self.df = df  # Store DataFrame
 
             # Update log choices
-            self.log_choices = list(combined_df)
+            self.log_choices = list(df.columns)
 
             # Update combo boxes
             self.y_combo.Clear()
@@ -81,16 +79,12 @@ class MyFrame(wx.Frame):
         
         dialog.Destroy()
 
+            # Create scatter plot
+            # fig, ax = plt.subplots()
+            # ax.scatter(x='NEU', y='DEN', data=df, c=df['GR'], vmin=0, vmax=100, cmap='rainbow')
+            # ax.set_ylabel('Bulk Density (DEN) - g/cc', fontsize=14)
+            # ax.set_xlabel('Neutron Porosity (NEU) - %', fontsize=14)
     def create_scatter_plot(self):
-        self.button.Destroy()
-        self.y_label.Destroy()
-        self.y_combo.Hide()
-        self.x_label.Destroy()
-        self.x_combo.Hide()
-        self.gr_label.Destroy()
-        self.gr_combo.Hide()
-        self.ok_button.Destroy()
-        self.cancel_button.Destroy()
         
         fig, ax = plt.subplots()
         scatter_plot=ax.scatter(x=self.x_combo.GetValue(), y=self.y_combo.GetValue(), data = self.df,
@@ -128,22 +122,27 @@ class MyFrame(wx.Frame):
         self.ax = ax
         self.polygon_selector = PolygonSelector(ax, self.on_polygon_select)
 
-
+        # dialog.Destroy()
+        self.y_label.Destroy()
+        self.y_combo.Hide()
+        self.x_label.Destroy()
+        self.x_combo.Hide()
+        self.gr_label.Destroy()
+        self.gr_combo.Hide()
+        self.ok_button.Destroy()
+        self.cancel_button.Destroy()
+        self.button.Destroy()
 
     def on_polygon_select(self, vertices):
         # Convert polygon vertices to a path
         path = Path(vertices)
+
   
         x = self.df[self.x_combo.GetValue()]
         y = self.df[self.y_combo.GetValue()]
         gr = self.df[self.gr_combo.GetValue()]
-        zip_data=zip(x, y, gr)
 
-        path_contains_point= path.contains_point
-        filte_data = filter(path_contains_point, zip_data)
-        list_filter_data = list(filte_data)
-
-        points_inside_polygon = np.array(list_filter_data)
+        points_inside_polygon = np.array(list(filter(path.contains_point, zip(x, y, gr))))
 
         if len(points_inside_polygon) > 0:
             # Clear previous scatter plot
