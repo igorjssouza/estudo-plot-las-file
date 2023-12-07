@@ -66,7 +66,7 @@ class MyFrame(wx.Frame):
         if dialog.ShowModal() == wx.ID_OK:
             filenames = dialog.GetPaths()
 
-            self.dataframes = {}  # Use a dictionary to store LAS dataframes
+            self.dataframes = {}  
 
             for filename in filenames:
                 # Read LAS file
@@ -78,15 +78,14 @@ class MyFrame(wx.Frame):
                 self.dataframes[filename] = df
                 self.las_combo.Append(filename)
 
-            self.las_combo.SetSelection(0)  # Select the first LAS file
+            # self.las_combo.SetSelection(0)  # Select the first LAS file
             # Update log choices
             # self.update_log_choices()
-            self.update_log_choices(self.las_combo.GetValue())
+            # self.update_log_choices(self.las_combo.GetValue())
 
         dialog.Destroy()
 
     def create_scatter_plots(self):
-        # for df in self.dataframes:
         fig, ax = plt.subplots()
         x=self.x_combo.GetValue()
         y=self.y_combo.GetValue()
@@ -132,7 +131,6 @@ class MyFrame(wx.Frame):
         # Convert polygon vertices to a path
         path = Path(vertices)
 
-        # for df in self.dataframes:
         x = self.df[self.x_combo.GetValue()]
         y = self.df[self.y_combo.GetValue()]
         gr = self.df[self.gr_combo.GetValue()]
